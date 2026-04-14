@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BYU Hoops Run!</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #00152e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
+    #game-container {
+      position: relative;
+      width: 800px;
+      flex-shrink: 0;
+    }
+
+    canvas#gameCanvas {
+      display: block;
+      width: 800px;
+      height: 400px;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      border: 4px solid #0a0a0a;
+      box-shadow: 0 0 60px rgba(0, 62, 162, 0.5), 0 0 20px rgba(0,0,0,0.9);
+    }
+
+    .screen-overlay {
+      position: absolute;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0, 10, 20, 0.72);
+      z-index: 10;
+    }
+    .screen-overlay.active { display: flex; }
+
+    .screen-overlay h1 {
+      font-size: 52px;
+      color: #002E5D;
+      text-shadow: 4px 4px 0 #000, -1px -1px 0 #000, 0 0 20px rgba(0,98,163,0.8);
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+      -webkit-text-stroke: 2px #FFFFFF;
+    }
+    .screen-overlay h2 {
+      font-size: 30px;
+      color: #FFD700;
+      text-shadow: 2px 2px 0 #000;
+      margin-bottom: 6px;
+    }
+    .screen-overlay .subtitle {
+      font-size: 16px;
+      color: #cce0ff;
+      margin-bottom: 4px;
+      text-shadow: 1px 1px 0 #000;
+    }
+    .screen-overlay .hint {
+      font-size: 14px;
+      color: #99bbdd;
+      margin-bottom: 2px;
+      text-shadow: 1px 1px 0 #000;
+    }
+    .press-space {
+      margin-top: 28px;
+      font-size: 22px;
+      color: #FFD700;
+      text-shadow: 2px 2px 0 #000;
+      animation: blink 0.85s step-end infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+    #score-hud {
+      position: absolute;
+      top: 8px; right: 14px;
+      color: #fff;
+      font-size: 18px;
+      font-weight: bold;
+      text-shadow: 2px 2px 0 #000, -1px -1px 0 #000;
+      z-index: 5;
+      pointer-events: none;
+      letter-spacing: 1px;
+    }
+
+    /* ─── SITE-WIDE NAV ─── */
+    .site-nav {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
+      background: #002E5D;
+      height: 42px;
+      display: flex; align-items: center;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.8);
+      font-family: 'Courier New', monospace;
+    }
+    .site-nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 0 22px;
+    }
+    .site-nav-brand {
+      color: #FFD700; font-weight: bold; font-size: 15px;
+      letter-spacing: 1px; text-decoration: none;
+    }
+    .site-nav-brand:hover { color: #fff; }
+    .site-nav-links { display: flex; gap: 4px; }
+    .site-nav-links a {
+      color: #cce0ff; text-decoration: none; font-size: 13px;
+      padding: 5px 13px; border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .site-nav-links a:hover { background: rgba(255,255,255,0.14); color: #FFD700; }
+    .site-nav-links a.nav-active { background: rgba(255,215,0,0.18); color: #FFD700; font-weight: bold; }
+  </style>
+</head>
+<body style="padding-top: 42px;">
+  <!-- SITE NAV -->
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a class="site-nav-brand" href="index.html">KJ Perry</a>
+      <div class="site-nav-links">
+        <a href="index.html">📄 Resume</a>
+        <a href="anime.html">🎌 Anime</a>
+        <a href="mario-hippo-runner.html" class="nav-active">🏀 BYU Game</a>
+      </div>
+    </div>
+  </nav>
+
+<div id="game-container">
+  <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+  <div id="start-screen" class="screen-overlay active">
+    <h1>BYU HOOPS RUN!</h1>
+    <p class="subtitle">Help the Cougar dodge Utes defenders &amp; floor gaps!</p>
+    <p class="hint">Jump over Utes blockers &bull; Don't fall out of bounds!</p>
+    <p class="hint">Double-jump allowed &bull; Speed increases over time</p>
+    <div class="press-space">PRESS SPACE TO START</div>
+  </div>
+
+  <div id="gameover-screen" class="screen-overlay">
+    <h1>GAME OVER</h1>
+    <h2>Score: <span id="final-score">0</span></h2>
+    <p class="subtitle">Best: <span id="best-score-go">0</span></p>
+    <div class="press-space">PRESS SPACE TO RETRY</div>
+  </div>
+
+  <div id="score-hud">
+    SCORE: <span id="score-display">0</span> &nbsp; BEST: <span id="best-display">0</span>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSTANTS & CONFIG
+// ─────────────────────────────────────────────────────────────────────────────
+
+const CANVAS_W = 800;
+const CANVAS_H = 400;
+
+const CLR = {
+  // Arena background
+  sky:        '#0a0a1e',
+  skyHorizon: '#0d0d28',
+  // Court floor
+  grass:      '#e8d070',   // court boundary line / baseline
+  grassDark:  '#c8a830',
+  ground:     '#c8922a',   // hardwood plank A
+  groundDark: '#b07820',   // hardwood plank B
+  mortar:     '#8a5a10',   // wood grain line
+  // Utah Utes cylinders — crimson & white
+  pipeLight:  '#CC0000',
+  pipeDark:   '#8B0000',
+  pipeShine:  '#ff4444',
+  pipeHole:   '#3a0000',
+  // BYU Cougar character — navy & royal blue
+  marioRed:   '#002E5D',   // BYU navy (hat)
+  marioBlue:  '#0062A3',   // BYU royal blue (body)
+  marioBlueLt:'#1a85d8',   // lighter blue (bib)
+  skin:       '#fed1b0',
+  skinDark:   '#e8b090',
+  skinDarker: '#c07050',
+  black:      '#1a1a1a',
+  white:      '#ffffff',
+  gold:       '#FFD700',
+  shoe:       '#1a1a1a',   // black sneakers
+  earPink:    '#f0a080',
+  // Utah Utes fan goombas — crimson
+  goombaBody: '#CC0000',
+  goombaDark: '#7a0000',
+  goombaFeet: '#3a0000',
+  // Arena crowd / bleachers
+  hillGreen:  '#3a0a0a',   // dark crowd upper
+  hillLight:  '#6a1010',   // Utes red crowd lower
+  cloud:      '#fffbe6',   // arena spotlights
+  cloudShad:  '#fff0a0',
+};
+
+const PHYSICS = {
+  gravity:         0.55,
+  jumpForce:      -13.5,
+  doubleJumpForce: -10.5,
+  maxFallSpeed:    18,
+  runSpeed:        5,
+  speedIncrement:  0.0008,
+  groundY:         336,
+};
+
+const GROUND = {
+  top:    336,
+  height:  64,
+  brickW:  32,
+  brickH:  16,
+};
+
+const PLAYER_CFG = {
+  startX:     120,
+  startY:     336 - 56,
+  width:       40,
+  height:      56,
+  hitboxInset:  6,
+};
+
+const SPAWN = {
+  minGap:       300,
+  maxGap:       520,
+  pipeW:         52,
+  pipeMinH:      44,
+  pipeMaxH:      88,
+  goombaW:       40,
+  goombaH:       36,
+  gapMinW:       80,
+  gapMaxW:      125,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────────────────────
+
+let state = {
+  phase: 'start',
+  score: 0,
+  bestScore: 0,
+  distance: 0,
+  scrollSpeed: PHYSICS.runSpeed,
+  cameraX: 0,
+  frameCount: 0,
+};
+
+let player = null;
+let obstacles = [];
+let clouds = [];
+let particles = [];
+let nextSpawnDist = 600;
+let lastTime = 0;
+let spaceJustPressed = false;
+let spaceHeld = false;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// CANVAS SETUP
+// ─────────────────────────────────────────────────────────────────────────────
+
+const canvas = document.getElementById('gameCanvas');
+const ctx    = canvas.getContext('2d');
+ctx.imageSmoothingEnabled = false;
+
+const scoreDisplay  = document.getElementById('score-display');
+const bestDisplay   = document.getElementById('best-display');
+const finalScoreEl  = document.getElementById('final-score');
+const bestScoreGoEl = document.getElementById('best-score-go');
+const startScreen   = document.getElementById('start-screen');
+const gameoverScreen = document.getElementById('gameover-screen');
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INPUT
+// ─────────────────────────────────────────────────────────────────────────────
+
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' || e.key === ' ') {
+    e.preventDefault();
+    if (!spaceHeld) {
+      if (state.phase === 'start' || state.phase === 'dead') {
+        startGame();
+      } else {
+        spaceJustPressed = true;
+      }
+    }
+    spaceHeld = true;
+  }
+});
+document.addEventListener('keyup', e => {
+  if (e.code === 'Space' || e.key === ' ') spaceHeld = false;
+});
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  spaceJustPressed = true;
+}, { passive: false });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UTILITIES
+// ─────────────────────────────────────────────────────────────────────────────
+
+function randInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function randFloat(min, max) {
+  return min + Math.random() * (max - min);
+}
+
+function roundRect(ctx, x, y, w, h, r) {
+  r = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.lineTo(x + w - r, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+  ctx.lineTo(x + w, y + h - r);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+  ctx.lineTo(x + r, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+  ctx.lineTo(x, y + r);
+  ctx.quadraticCurveTo(x, y, x + r, y);
+  ctx.closePath();
+}
+
+function aabbOverlap(ax, ay, aw, ah, bx, by, bw, bh) {
+  return ax < bx + bw && ax + aw > bx && ay < by + bh && ay + ah > by;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PLAYER
+// ─────────────────────────────────────────────────────────────────────────────
+
+function createPlayer() {
+  return {
+    x:        PLAYER_CFG.startX,
+    y:        PLAYER_CFG.startY,
+    vy:       0,
+    width:    PLAYER_CFG.width,
+    height:   PLAYER_CFG.height,
+    onGround: false,
+    jumpCount: 0,
+    legFrame: 0,
+    legTimer: 0,
+    dead: false,
+
+    jump() {
+      if (this.jumpCount < 2) {
+        this.vy = this.jumpCount === 0 ? PHYSICS.jumpForce : PHYSICS.doubleJumpForce;
+        this.jumpCount++;
+        this.onGround = false;
+        spawnJumpParticles(this.x + this.width / 2, this.y + this.height);
+      }
+    },
+
+    update() {
+      this.vy = Math.min(this.vy + PHYSICS.gravity, PHYSICS.maxFallSpeed);
+      this.y += this.vy;
+
+      // Check if over a gap (world coords)
+      const worldCenterX = this.x + state.cameraX + this.width / 2;
+      const overGap = obstacles.some(o =>
+        o.type === 'gap' && worldCenterX > o.x && worldCenterX < o.x + o.width
+      );
+
+      if (!overGap && this.y + this.height >= PHYSICS.groundY) {
+        this.y = PHYSICS.groundY - this.height;
+        this.vy = 0;
+        this.onGround = true;
+        this.jumpCount = 0;
+      } else {
+        this.onGround = false;
+      }
+
+      // Leg animation
+      if (this.onGround) {
+        this.legTimer++;
+        if (this.legTimer > 8) { this.legFrame ^= 1; this.legTimer = 0; }
+      } else {
+        this.legFrame = 0;
+      }
+    },
+
+    getHitbox() {
+      const i = PLAYER_CFG.hitboxInset;
+      return { x: this.x + i, y: this.y + i, w: this.width - i * 2, h: this.height - i };
+    },
+
+    draw(ctx) {
+      drawHippoMario(ctx, this.x, this.y, this.legFrame, this.onGround);
+    },
+  };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// HIPPO-MARIO DRAWING
+// ─────────────────────────────────────────────────────────────────────────────
+
+function drawHippoMario(ctx, px, py, legFrame, onGround) {
+  ctx.save();
+
+  const W = 40;
+  const H = 56;
+
+  // ── Legs ──────────────────────────────────────────────────────
+  const legW = 11, legH = 15;
+  const legY  = py + H - legH;
+  const llOff = legFrame === 0 ? -3 : 3;
+  const rlOff = legFrame === 0 ?  3 : -3;
+
+  ctx.fillStyle = CLR.marioBlue;
+  ctx.fillRect(px + 3 + llOff, legY, legW, legH);
+  ctx.fillRect(px + W - legW - 3 + rlOff, legY, legW, legH);
+
+  // Shoes
+  ctx.fillStyle = CLR.shoe;
+  ctx.fillRect(px + 1 + llOff, legY + legH - 5, legW + 4, 7);
+  ctx.fillRect(px + W - legW - 5 + rlOff, legY + legH - 5, legW + 4, 7);
+
+  // ── Body (blue overalls) ───────────────────────────────────────
+  const bx = px + 2, by = py + 27, bw = W - 4, bh = 24;
+  ctx.fillStyle = CLR.marioBlue;
+  roundRect(ctx, bx, by, bw, bh, 8); ctx.fill();
+
+  // Bib (lighter blue)
+  ctx.fillStyle = CLR.marioBlueLt;
+  roundRect(ctx, bx + 7, by + 2, bw - 14, 11, 3); ctx.fill();
+
+  // Strap buttons
+  ctx.fillStyle = CLR.gold;
+  ctx.beginPath(); ctx.arc(bx + 9,      by + 3, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(bx + bw - 9, by + 3, 2.5, 0, Math.PI * 2); ctx.fill();
+
+  // Overall straps
+  ctx.strokeStyle = CLR.gold;
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.moveTo(bx + 8,      by);
+  ctx.lineTo(bx + 10,     by + 13);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(bx + bw - 8,  by);
+  ctx.lineTo(bx + bw - 10, by + 13);
+  ctx.stroke();
+
+  // ── Head (large oval, skin, hippo-shaped) ─────────────────────
+  const hcx = px + W / 2 + 2;
+  const hcy = py + 21;
+  const hrx = 17, hry = 15;
+
+  ctx.fillStyle = CLR.skin;
+  ctx.beginPath();
+  ctx.ellipse(hcx, hcy, hrx, hry, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // ── Ears (two semicircles on top of head) ─────────────────────
+  ctx.fillStyle = CLR.skin;
+  ctx.beginPath(); ctx.arc(hcx - 11, hcy - hry + 3, 7, Math.PI, 0); ctx.fill();
+  ctx.beginPath(); ctx.arc(hcx + 5,  hcy - hry + 3, 7, Math.PI, 0); ctx.fill();
+  // Inner ear
+  ctx.fillStyle = CLR.earPink;
+  ctx.beginPath(); ctx.arc(hcx - 11, hcy - hry + 3, 3.5, Math.PI, 0); ctx.fill();
+  ctx.beginPath(); ctx.arc(hcx + 5,  hcy - hry + 3, 3.5, Math.PI, 0); ctx.fill();
+
+  // ── Snout (wide hippo muzzle) ─────────────────────────────────
+  const sx = hcx + 9, sy = hcy + 3;
+  ctx.fillStyle = CLR.skinDark;
+  ctx.beginPath();
+  ctx.ellipse(sx, sy, 10, 8, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Nostrils
+  ctx.fillStyle = CLR.skinDarker;
+  ctx.beginPath(); ctx.ellipse(sx - 4, sy - 1, 2.5, 2, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(sx + 4, sy - 1, 2.5, 2, 0, 0, Math.PI * 2); ctx.fill();
+
+  // Mouth line
+  ctx.strokeStyle = '#8a4020';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(sx, sy + 2, 6, 0.1 * Math.PI, 0.9 * Math.PI);
+  ctx.stroke();
+
+  // ── Eyes ──────────────────────────────────────────────────────
+  const ex = hcx + 4, ey = hcy - 4;
+  ctx.fillStyle = CLR.black;
+  ctx.beginPath(); ctx.arc(ex,     ey, 3.5, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = CLR.white;
+  ctx.beginPath(); ctx.arc(ex + 1, ey - 1, 1.2, 0, Math.PI * 2); ctx.fill();
+
+  ctx.fillStyle = CLR.black;
+  ctx.beginPath(); ctx.arc(ex - 7, ey, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = CLR.white;
+  ctx.beginPath(); ctx.arc(ex - 6, ey - 1, 1, 0, Math.PI * 2); ctx.fill();
+
+  // ── Hat ───────────────────────────────────────────────────────
+  const hatBrimY = hcy - hry - 1;
+
+  // Hat brim
+  ctx.fillStyle = CLR.marioRed;
+  ctx.fillRect(hcx - 15, hatBrimY, 28, 5);
+
+  // Hat top (trapezoid)
+  ctx.fillStyle = CLR.marioRed;
+  ctx.beginPath();
+  ctx.moveTo(hcx - 10, hatBrimY);
+  ctx.lineTo(hcx + 13, hatBrimY);
+  ctx.lineTo(hcx + 10, hatBrimY - 13);
+  ctx.lineTo(hcx - 8,  hatBrimY - 13);
+  ctx.closePath();
+  ctx.fill();
+
+  // Hat "Y" (BYU)
+  ctx.fillStyle = CLR.white;
+  ctx.font = 'bold 9px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('Y', hcx + 1, hatBrimY - 7);
+
+  ctx.restore();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PIPE DRAWING
+// ─────────────────────────────────────────────────────────────────────────────
+
+function drawPipe(ctx, worldX, height, cameraX) {
+  // Utah Utes themed blocker — crimson & white cylinder
+  const sx = worldX - cameraX;
+  const pw = SPAWN.pipeW;
+  const capW = pw + 10;
+  const capH = 22;
+  const bodyTop = PHYSICS.groundY - height;
+
+  // Body: crimson with left-shadow stripe and right highlight
+  ctx.fillStyle = CLR.pipeDark;
+  ctx.fillRect(sx, bodyTop, 8, height);
+  ctx.fillStyle = CLR.pipeLight;
+  ctx.fillRect(sx + 8, bodyTop, pw - 14, height);
+  ctx.fillStyle = CLR.pipeShine;
+  ctx.fillRect(sx + pw - 6, bodyTop, 6, height);
+
+  // White horizontal stripes on body (Utes jersey style)
+  ctx.fillStyle = 'rgba(255,255,255,0.18)';
+  for (let sy = bodyTop + 10; sy < PHYSICS.groundY - 8; sy += 18) {
+    ctx.fillRect(sx + 8, sy, pw - 14, 5);
+  }
+
+  // Cap: wider, white with crimson rim
+  const capX = sx - 5;
+  const capY = bodyTop - capH;
+  ctx.fillStyle = CLR.white;
+  ctx.fillRect(capX, capY, capW, capH);
+  // Crimson left shadow on cap
+  ctx.fillStyle = CLR.pipeDark;
+  ctx.fillRect(capX, capY, 8, capH);
+  // Crimson right shadow on cap
+  ctx.fillStyle = '#aa0000';
+  ctx.fillRect(capX + capW - 6, capY, 6, capH);
+  // Crimson top rim
+  ctx.fillStyle = CLR.pipeDark;
+  ctx.fillRect(capX, capY, capW, 4);
+  // Crimson bottom rim
+  ctx.fillRect(capX, capY + capH - 4, capW, 4);
+
+  // "U" on the white cap
+  ctx.fillStyle = CLR.pipeLight;
+  ctx.font = 'bold 13px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('U', sx + pw / 2, capY + capH / 2);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GOOMBA DRAWING
+// ─────────────────────────────────────────────────────────────────────────────
+
+function drawGoomba(ctx, worldX, y, cameraX, walkFrame) {
+  // Utah Utes fan — round crimson body, red cap with "U", angry face
+  const sx = worldX - cameraX;
+  const gW = SPAWN.goombaW;
+  const gH = SPAWN.goombaH;
+  const cx = sx + gW / 2;
+  const cy = y  + gH / 2;
+
+  // Legs (crimson shorts)
+  const fl = walkFrame === 0 ? -4 :  4;
+  const fr = walkFrame === 0 ?  4 : -4;
+  ctx.fillStyle = CLR.goombaDark;
+  ctx.fillRect(cx - 11 + fl, y + gH - 4, 9, 12);
+  ctx.fillRect(cx + 2  + fr, y + gH - 4, 9, 12);
+
+  // Shoes (white sneakers)
+  ctx.fillStyle = CLR.white;
+  ctx.beginPath(); ctx.ellipse(cx - 7  + fl, y + gH + 9, 9, 5, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + 7  + fr, y + gH + 9, 9, 5, 0, 0, Math.PI * 2); ctx.fill();
+  // Shoe stripe (red)
+  ctx.fillStyle = CLR.goombaBody;
+  ctx.fillRect(cx - 14 + fl, y + gH + 7, 14, 3);
+  ctx.fillRect(cx +  1 + fr, y + gH + 7, 14, 3);
+
+  // Body (crimson jersey)
+  ctx.fillStyle = CLR.goombaBody;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, gW / 2, gH / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Jersey shading
+  const grad = ctx.createRadialGradient(cx - 5, cy - 4, 2, cx, cy, gW / 2);
+  grad.addColorStop(0, 'rgba(255,80,80,0.4)');
+  grad.addColorStop(1, 'rgba(0,0,0,0.45)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  ctx.ellipse(cx, cy, gW / 2, gH / 2, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Jersey number "0" in white
+  ctx.fillStyle = CLR.white;
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('0', cx, cy + 4);
+
+  // Head (skin tone, round)
+  const hcy = y - 2;
+  ctx.fillStyle = CLR.skin;
+  ctx.beginPath(); ctx.arc(cx, hcy, 11, 0, Math.PI * 2); ctx.fill();
+
+  // Eyes (angry, white sclerae)
+  ctx.fillStyle = CLR.white;
+  ctx.beginPath(); ctx.ellipse(cx - 5, hcy - 1, 4.5, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(cx + 5, hcy - 1, 4.5, 4, 0, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = CLR.black;
+  ctx.beginPath(); ctx.arc(cx - 4, hcy - 1, 2.5, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(cx + 4, hcy - 1, 2.5, 0, Math.PI * 2); ctx.fill();
+
+  // Angry brows
+  ctx.strokeStyle = CLR.goombaDark;
+  ctx.lineWidth = 2.5; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(cx - 10, hcy - 7); ctx.lineTo(cx - 2, hcy - 4); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx + 10, hcy - 7); ctx.lineTo(cx + 2, hcy - 4); ctx.stroke();
+
+  // Frown
+  ctx.strokeStyle = '#8a4020'; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.arc(cx, hcy + 5, 5, 0.2*Math.PI, 0.8*Math.PI, true); ctx.stroke();
+
+  // Red Utah Utes cap
+  ctx.fillStyle = CLR.goombaBody;
+  ctx.fillRect(cx - 10, hcy - 18, 20, 8);   // brim
+  ctx.beginPath();
+  ctx.moveTo(cx - 8,  hcy - 18);
+  ctx.lineTo(cx + 8,  hcy - 18);
+  ctx.lineTo(cx + 6,  hcy - 28);
+  ctx.lineTo(cx - 6,  hcy - 28);
+  ctx.closePath(); ctx.fill();
+  // "U" on cap
+  ctx.fillStyle = CLR.white;
+  ctx.font = 'bold 7px monospace';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('U', cx, hcy - 23);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// BACKGROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+const SPOTLIGHT_LABELS = [
+  'KJ PERRY', 'GO COUGS', 'KJ PERRY', 'GO COUGS!', 'KJ PERRY', 'BEAT UTAH', 'GO COUGS',
+];
+
+function initClouds() {
+  clouds = [];
+  for (let i = 0; i < 7; i++) {
+    clouds.push({
+      x:     i * 160 + randFloat(0, 60),
+      y:     randFloat(6, 22),       // near ceiling
+      scale: randFloat(0.8, 1.3),
+      label: SPOTLIGHT_LABELS[i % SPOTLIGHT_LABELS.length],
+    });
+  }
+}
+
+function drawCloud(ctx, x, y, s) {
+  ctx.fillStyle = CLR.cloud;
+  ctx.beginPath(); ctx.arc(x,          y,      18 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 22 * s, y - 6,  14 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x - 22 * s, y - 2,  12 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x + 10 * s, y + 10, 10 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.beginPath(); ctx.arc(x - 10 * s, y + 10, 10 * s, 0, Math.PI * 2); ctx.fill();
+}
+
+function drawBackground(ctx, cameraX) {
+  // Arena ceiling — dark navy gradient
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, PHYSICS.groundY);
+  skyGrad.addColorStop(0,   '#06060f');
+  skyGrad.addColorStop(0.5, '#0d0d22');
+  skyGrad.addColorStop(1,   '#1a0a0a');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, CANVAS_W, PHYSICS.groundY);
+
+  // Spotlights on ceiling (slow parallax)
+  const lightOff = -(cameraX * 0.08);
+  for (const c of clouds) {
+    const sx = ((c.x + lightOff % (CANVAS_W + 300)) + (CANVAS_W + 300)) % (CANVAS_W + 300) - 150;
+    drawSpotlight(ctx, sx, c.y, c.scale, c.label);
+  }
+
+  // Bleachers / crowd (25% parallax)
+  const crowdOff = -(cameraX * 0.25);
+  drawBleachers(ctx, crowdOff);
+}
+
+function drawSpotlight(ctx, x, y, s, label) {
+  // Light cone beam downward
+  const beamW = 38 * s;
+  const beamGrad = ctx.createLinearGradient(x, y, x, PHYSICS.groundY);
+  beamGrad.addColorStop(0,   'rgba(255,248,200,0.22)');
+  beamGrad.addColorStop(0.6, 'rgba(255,240,150,0.07)');
+  beamGrad.addColorStop(1,   'rgba(255,240,100,0)');
+  ctx.fillStyle = beamGrad;
+  ctx.beginPath();
+  ctx.moveTo(x - 4, y);
+  ctx.lineTo(x - beamW, PHYSICS.groundY);
+  ctx.lineTo(x + beamW, PHYSICS.groundY);
+  ctx.lineTo(x + 4, y);
+  ctx.closePath();
+  ctx.fill();
+
+  // Bright fixture dot
+  ctx.fillStyle = 'rgba(255,255,220,0.75)';
+  ctx.beginPath(); ctx.arc(x, y, 6 * s, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = 'rgba(255,255,255,0.95)';
+  ctx.beginPath(); ctx.arc(x, y, 3 * s, 0, Math.PI * 2); ctx.fill();
+
+  // Label banner below fixture
+  if (label) {
+    const bw = label.length * 7.5 + 14;
+    const bh = 16;
+    const bx = x - bw / 2;
+    const by = y + 8 * s;
+
+    // Banner background — BYU navy
+    ctx.fillStyle = 'rgba(0,46,93,0.88)';
+    roundRect(ctx, bx, by, bw, bh, 4); ctx.fill();
+    // Gold border
+    ctx.strokeStyle = '#FFD700';
+    ctx.lineWidth = 1.5;
+    roundRect(ctx, bx, by, bw, bh, 4); ctx.stroke();
+    // Text
+    ctx.fillStyle = '#FFD700';
+    ctx.font = `bold ${Math.round(8 * s)}px monospace`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, x, by + bh / 2);
+  }
+}
+
+function drawBleachers(ctx, offset) {
+  // Rows of crowd seats — Utes fans in crimson/red
+  const rowH = 18;
+  const rowCount = 5;
+  const seatW = 14;
+  const bleacherTop = 140;
+
+  for (let row = 0; row < rowCount; row++) {
+    const rowY    = bleacherTop + row * rowH;
+    const rowOff  = offset + row * 8;   // slight perspective stagger
+    const shade   = row / rowCount;
+    // Row background (dark seats)
+    ctx.fillStyle = `rgb(${20 + row*6}, ${8 + row*3}, ${8 + row*3})`;
+    ctx.fillRect(0, rowY, CANVAS_W, rowH - 2);
+
+    // Fans (little figures in Utes crimson)
+    const startCol = -2;
+    const colCount = Math.ceil(CANVAS_W / seatW) + 4;
+    for (let col = startCol; col < startCol + colCount; col++) {
+      const fx = (((col * seatW + rowOff) % (CANVAS_W + seatW * 2)) + CANVAS_W + seatW * 2) % (CANVAS_W + seatW * 2) - seatW;
+      // Pick a slightly varied red per seat (some white shirts mixed in)
+      const r = (col + row * 3) % 7;
+      ctx.fillStyle = r < 5 ? `hsl(${0 + r},${70+r*4}%,${30+r*4}%)` : '#cccccc';
+      // Head
+      ctx.beginPath(); ctx.arc(fx + 6, rowY + 5, 4, 0, Math.PI * 2); ctx.fill();
+      // Body
+      ctx.fillRect(fx + 2, rowY + 9, 8, rowH - 11);
+    }
+  }
+
+  // Scoreboard silhouette top-right
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(CANVAS_W - 130, 20, 110, 60);
+  ctx.strokeStyle = '#CC0000';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(CANVAS_W - 130, 20, 110, 60);
+  ctx.fillStyle = '#CC0000';
+  ctx.font = 'bold 11px monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('UTAH UTES', CANVAS_W - 75, 42);
+  ctx.fillStyle = '#002E5D';
+  ctx.fillText('vs  BYU', CANVAS_W - 75, 60);
+  ctx.fillStyle = '#FFD700';
+  ctx.font = 'bold 9px monospace';
+  ctx.fillText('RES HALL  ' + (state ? Math.floor((state.score||0)/10) : '0'), CANVAS_W - 75, 74);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GROUND
+// ─────────────────────────────────────────────────────────────────────────────
+
+function drawGroundFull(ctx, cameraX, gaps) {
+  const top    = GROUND.top;
+  const height = GROUND.height;
+  const plankH = 8;   // hardwood plank height
+
+  // Base wood color
+  ctx.fillStyle = CLR.ground;
+  ctx.fillRect(0, top, CANVAS_W, height);
+
+  // Clear gap regions before drawing planks
+  for (const gap of gaps) {
+    const gx = gap.x - cameraX;
+    if (gx + gap.width < 0 || gx > CANVAS_W) continue;
+    ctx.clearRect(gx, top, gap.width, height);
+  }
+
+  // Horizontal wood planks
+  const offsetX = -(cameraX % 48);
+  for (let row = 0; row < Math.ceil(height / plankH); row++) {
+    const rowY   = top + row * plankH;
+    const plankShade = row % 2 === 0 ? CLR.ground : CLR.groundDark;
+
+    // Check gap for this row — draw plank segments around gaps
+    let drawn = false;
+    let segStart = 0;
+    for (let gx = 0; gx <= CANVAS_W; gx++) {
+      const worldX = gx + cameraX;
+      const inGap  = gaps.some(g => worldX >= g.x && worldX < g.x + g.width);
+      if (!inGap && drawn === false) { segStart = gx; drawn = true; }
+      if (inGap && drawn === true) {
+        ctx.fillStyle = plankShade;
+        ctx.fillRect(segStart, rowY, gx - segStart, plankH - 1);
+        drawn = false;
+      }
+    }
+    if (drawn) {
+      ctx.fillStyle = plankShade;
+      ctx.fillRect(segStart, rowY, CANVAS_W - segStart, plankH - 1);
+    }
+
+    // Wood grain lines (vertical seams, scrolling)
+    ctx.strokeStyle = CLR.mortar;
+    ctx.lineWidth = 0.5;
+    const seamSpacing = 48;
+    for (let col = -1; col < Math.ceil(CANVAS_W / seamSpacing) + 2; col++) {
+      const sx = offsetX + col * seamSpacing + (row % 2) * 24;
+      // Skip seam if in gap
+      const worldSX = sx + cameraX;
+      if (gaps.some(g => worldSX >= g.x && worldSX < g.x + g.width)) continue;
+      ctx.beginPath(); ctx.moveTo(sx, rowY); ctx.lineTo(sx, rowY + plankH - 1); ctx.stroke();
+    }
+  }
+
+  // Court boundary line at very top of floor (white)
+  ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(0, top + 1);
+  ctx.lineTo(CANVAS_W, top + 1);
+  ctx.stroke();
+  // Erase line over gaps
+  for (const gap of gaps) {
+    const gx = gap.x - cameraX;
+    if (gx + gap.width < 0 || gx > CANVAS_W) continue;
+    ctx.clearRect(gx, top, gap.width, height);
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PARTICLES
+// ─────────────────────────────────────────────────────────────────────────────
+
+function spawnJumpParticles(x, y) {
+  for (let i = 0; i < 5; i++) {
+    particles.push({
+      x, y,
+      vx: randFloat(-3, 3),
+      vy: randFloat(1, 3),
+      life: 20, maxLife: 20,
+      color: CLR.ground,
+      size: randFloat(3, 6),
+    });
+  }
+}
+
+function spawnDeathParticles(x, y) {
+  const colors = ['#002E5D', '#0062A3', '#FFD700', '#ffffff', '#CC0000'];
+  for (let i = 0; i < 16; i++) {
+    particles.push({
+      x, y,
+      vx: randFloat(-7, 7),
+      vy: randFloat(-8, -2),
+      life: 55, maxLife: 55,
+      color: colors[randInt(0, colors.length - 1)],
+      size: randFloat(4, 8),
+    });
+  }
+}
+
+function updateParticles() {
+  for (const p of particles) {
+    p.x    += p.vx;
+    p.y    += p.vy;
+    p.vy   += 0.3;
+    p.life -= 1;
+  }
+  particles = particles.filter(p => p.life > 0);
+}
+
+function drawParticles(ctx) {
+  for (const p of particles) {
+    ctx.globalAlpha = Math.max(0, p.life / p.maxLife);
+    ctx.fillStyle = p.color;
+    ctx.fillRect(p.x - p.size / 2, p.y - p.size / 2, p.size, p.size);
+  }
+  ctx.globalAlpha = 1;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OBSTACLES
+// ─────────────────────────────────────────────────────────────────────────────
+
+function createPipe(worldX) {
+  // Slight height variation with score but always jumpable
+  const progress = Math.min(state.score / 3000, 1);
+  const minH = SPAWN.pipeMinH + progress * 20;
+  const maxH = SPAWN.pipeMaxH;
+  return { type: 'pipe', x: worldX, height: randInt(minH, maxH), active: true };
+}
+
+function createGoomba(worldX) {
+  return {
+    type: 'goomba',
+    x: worldX,
+    y: PHYSICS.groundY - SPAWN.goombaH - 2,
+    vy: 0,
+    speed: randFloat(1.6, 2.6),
+    walkFrame: 0,
+    walkTimer: 0,
+    active: true,
+  };
+}
+
+function createGap(worldX) {
+  return {
+    type: 'gap',
+    x: worldX,
+    width: randInt(SPAWN.gapMinW, SPAWN.gapMaxW),
+    active: true,
+  };
+}
+
+function getSpawnWeights() {
+  const s = state.score;
+  if (s < 300)  return { gap: 0,    goomba: 0,    pipe: 1 };
+  if (s < 1000) return { gap: 0,    goomba: 0.35, pipe: 0.65 };
+  if (s < 1800) return { gap: 0.10, goomba: 0.35, pipe: 0.55 };
+  return               { gap: 0.18, goomba: 0.35, pipe: 0.47 };
+}
+
+function spawnObstacles() {
+  if (state.cameraX + CANVAS_W + 150 < nextSpawnDist) return;
+
+  const weights = getSpawnWeights();
+  const roll = Math.random();
+
+  // Prevent gap immediately after another gap
+  const lastObs = obstacles[obstacles.length - 1];
+  const noGap = lastObs && lastObs.type === 'gap';
+
+  if (!noGap && roll < weights.gap) {
+    obstacles.push(createGap(nextSpawnDist));
+    nextSpawnDist += randInt(220, 340);
+  } else if (roll < weights.gap + weights.goomba) {
+    obstacles.push(createGoomba(nextSpawnDist));
+    if (Math.random() < 0.28) {
+      obstacles.push(createGoomba(nextSpawnDist + 58));
+    }
+    nextSpawnDist += randInt(SPAWN.minGap, SPAWN.maxGap);
+  } else {
+    obstacles.push(createPipe(nextSpawnDist));
+    nextSpawnDist += randInt(SPAWN.minGap, SPAWN.maxGap);
+  }
+}
+
+function updateGoombas() {
+  for (const obs of obstacles) {
+    if (obs.type !== 'goomba') continue;
+
+    obs.x -= obs.speed;
+
+    obs.walkTimer++;
+    if (obs.walkTimer > 11) { obs.walkFrame ^= 1; obs.walkTimer = 0; }
+
+    // Gravity
+    obs.vy = Math.min(obs.vy + PHYSICS.gravity, PHYSICS.maxFallSpeed);
+    obs.y  += obs.vy;
+    const groundY = PHYSICS.groundY - SPAWN.goombaH - 2;
+    if (obs.y >= groundY) { obs.y = groundY; obs.vy = 0; }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COLLISION
+// ─────────────────────────────────────────────────────────────────────────────
+
+function checkCollisions() {
+  const hb  = player.getHitbox();
+  const phx = hb.x, phy = hb.y, phw = hb.w, phh = hb.h;
+
+  for (const obs of obstacles) {
+    if (!obs.active) continue;
+
+    if (obs.type === 'pipe') {
+      const sx      = obs.x - state.cameraX;
+      const pipeTop = PHYSICS.groundY - obs.height;
+      const capX    = sx - 5;
+      const capY    = pipeTop - 22;
+      const capW    = SPAWN.pipeW + 10;
+
+      if (aabbOverlap(phx, phy, phw, phh, sx, pipeTop, SPAWN.pipeW, obs.height) ||
+          aabbOverlap(phx, phy, phw, phh, capX, capY, capW, 22)) {
+        triggerDeath(); return;
+      }
+    }
+
+    if (obs.type === 'goomba') {
+      const sx = obs.x - state.cameraX;
+      if (aabbOverlap(phx, phy, phw, phh, sx, obs.y, SPAWN.goombaW, SPAWN.goombaH)) {
+        triggerDeath(); return;
+      }
+    }
+
+    if (obs.type === 'gap') {
+      const worldCX = player.x + state.cameraX + player.width / 2;
+      if (worldCX > obs.x && worldCX < obs.x + obs.width &&
+          player.y + player.height > PHYSICS.groundY + 12) {
+        triggerDeath(); return;
+      }
+    }
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SCORE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function updateScore() {
+  state.distance   += state.scrollSpeed;
+  state.score       = Math.floor(state.distance / 10);
+  state.scrollSpeed = PHYSICS.runSpeed + state.distance * PHYSICS.speedIncrement;
+
+  scoreDisplay.textContent = state.score;
+  bestDisplay.textContent  = state.bestScore;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GAME FLOW
+// ─────────────────────────────────────────────────────────────────────────────
+
+function startGame() {
+  state = {
+    phase:       'playing',
+    score:        0,
+    bestScore:    state.bestScore,
+    distance:     0,
+    scrollSpeed:  PHYSICS.runSpeed,
+    cameraX:      0,
+    frameCount:   0,
+  };
+  player           = createPlayer();
+  obstacles        = [];
+  particles        = [];
+  nextSpawnDist    = 600;
+  spaceJustPressed = false;
+  initClouds();
+
+  startScreen.classList.remove('active');
+  gameoverScreen.classList.remove('active');
+}
+
+function triggerDeath() {
+  if (state.phase !== 'playing') return;
+  state.phase = 'dead';
+
+  if (state.score > state.bestScore) state.bestScore = state.score;
+
+  finalScoreEl.textContent  = state.score;
+  bestScoreGoEl.textContent = state.bestScore;
+  gameoverScreen.classList.add('active');
+
+  spawnDeathParticles(
+    player.x + player.width  / 2,
+    player.y + player.height / 2
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RENDER
+// ─────────────────────────────────────────────────────────────────────────────
+
+function render() {
+  ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+  const cam = state.phase === 'playing' || state.phase === 'dead'
+    ? state.cameraX : 0;
+
+  // 1. Background
+  drawBackground(ctx, cam);
+
+  // 2. Ground with gaps
+  const gaps = obstacles.filter(o => o.type === 'gap');
+  drawGroundFull(ctx, cam, gaps);
+
+  if (state.phase === 'start') {
+    // Draw idle hippo on start screen
+    drawHippoMario(ctx, PLAYER_CFG.startX, PLAYER_CFG.startY, 0, true);
+    return;
+  }
+
+  // 3. Pipes (behind goombas)
+  for (const obs of obstacles) {
+    if (obs.type !== 'pipe') continue;
+    const sx = obs.x - cam;
+    if (sx > -80 && sx < CANVAS_W + 80) {
+      drawPipe(ctx, obs.x, obs.height, cam);
+    }
+  }
+
+  // 4. Goombas
+  for (const obs of obstacles) {
+    if (obs.type !== 'goomba') continue;
+    const sx = obs.x - cam;
+    if (sx > -60 && sx < CANVAS_W + 60) {
+      drawGoomba(ctx, obs.x, obs.y, cam, obs.walkFrame);
+    }
+  }
+
+  // 5. Player
+  if (player) player.draw(ctx);
+
+  // 6. Particles
+  drawParticles(ctx);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UPDATE
+// ─────────────────────────────────────────────────────────────────────────────
+
+function update() {
+  state.frameCount++;
+
+  // Handle input
+  if (spaceJustPressed) {
+    if (state.phase === 'start' || state.phase === 'dead') {
+      startGame();
+      spaceJustPressed = false;
+      return;
+    }
+    player.jump();
+    spaceJustPressed = false;
+  }
+
+  // Scroll
+  state.cameraX += state.scrollSpeed;
+
+  // Score
+  updateScore();
+
+  // Player physics
+  player.update();
+
+  // Obstacles
+  spawnObstacles();
+  updateGoombas();
+
+  // Cull off-screen
+  obstacles = obstacles.filter(o => o.x > state.cameraX - 250);
+
+  // Particles
+  updateParticles();
+
+  // Collisions
+  checkCollisions();
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GAME LOOP
+// ─────────────────────────────────────────────────────────────────────────────
+
+function gameLoop(timestamp) {
+  const rawDt = timestamp - lastTime;
+  lastTime = timestamp;
+  // Skip very first frame (dt is huge) or tab-switch lag
+  if (rawDt < 200 && state.phase === 'playing') {
+    update();
+  } else if (state.phase === 'playing' && rawDt >= 200) {
+    // Tab was backgrounded — just advance one tick
+    update();
+  }
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+
+initClouds();
+requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>

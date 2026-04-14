@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BUSHIDO OF ANIME — The Spirit That Never Breaks</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Serif+JP:wght@300;400;700;900&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --red: #e8001a;
+      --gold: #f5c518;
+      --gold-dim: #a88a10;
+      --black: #070707;
+      --off-black: #0e0e0e;
+      --ink: #111111;
+      --white: #f2ede8;
+      --dim: #8a8075;
+      --panel: #141210;
+      --border: rgba(245,197,24,0.18);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: var(--black);
+      color: var(--white);
+      font-family: 'Crimson Pro', serif;
+      font-size: 18px;
+      line-height: 1.7;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── CUSTOM CURSOR ─── */
+    .cursor {
+      width: 12px; height: 12px;
+      background: var(--gold);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      transition: transform 0.1s ease;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      width: 36px; height: 36px;
+      border: 1px solid var(--red);
+      border-radius: 50%;
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.35s cubic-bezier(.23,1,.32,1);
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed;
+      top: 42px; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 3rem;
+      background: linear-gradient(to bottom, rgba(7,7,7,0.98), rgba(7,7,7,0));
+    }
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.5rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+    }
+    .nav-logo span { color: var(--red); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.85rem;
+      letter-spacing: 0.25em;
+      color: var(--dim);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--gold); }
+
+    /* ─── HERO ─── */
+    #hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 0 6vw;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 80% at 80% 50%, rgba(232,0,26,0.07) 0%, transparent 70%),
+        radial-gradient(ellipse 40% 60% at 20% 80%, rgba(245,197,24,0.05) 0%, transparent 60%),
+        var(--black);
+    }
+
+    /* Speed lines */
+    .speed-lines {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .speed-lines::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-conic-gradient(
+        from 0deg at 110% 50%,
+        rgba(232,0,26,0.025) 0deg,
+        transparent 2deg,
+        transparent 5deg,
+        rgba(245,197,24,0.012) 6deg,
+        transparent 7deg
+      );
+    }
+
+    .hero-kanji {
+      position: absolute;
+      right: 5vw;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Noto Serif JP', serif;
+      font-weight: 900;
+      font-size: clamp(8rem, 18vw, 22rem);
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(232,0,26,0.15);
+      writing-mode: vertical-rl;
+      letter-spacing: 0.05em;
+      user-select: none;
+      animation: kanji-float 8s ease-in-out infinite;
+    }
+    @keyframes kanji-float {
+      0%, 100% { transform: translateY(-50%) translateX(0); opacity: 0.6; }
+      50% { transform: translateY(-52%) translateX(-10px); opacity: 1; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 800px;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.4em;
+      color: var(--red);
+      margin-bottom: 1rem;
+      opacity: 0;
+      animation: fade-up 0.8s 0.3s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(4rem, 10vw, 10rem);
+      line-height: 0.92;
+      letter-spacing: -0.01em;
+      margin-bottom: 1.5rem;
+      opacity: 0;
+      animation: fade-up 0.9s 0.5s forwards;
+    }
+    .hero-title .line-red { color: var(--red); }
+    .hero-title .line-gold { color: var(--gold); }
+
+    .hero-sub {
+      font-family: 'Crimson Pro', serif;
+      font-size: 1.25rem;
+      font-style: italic;
+      color: var(--dim);
+      max-width: 520px;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fade-up 0.9s 0.75s forwards;
+    }
+
+    .hero-cta {
+      display: inline-flex;
+      gap: 1.5rem;
+      opacity: 0;
+      animation: fade-up 0.9s 1s forwards;
+    }
+    .btn-primary {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.15em;
+      font-size: 0.9rem;
+      padding: 1rem 2.5rem;
+      background: var(--red);
+      color: var(--white);
+      text-decoration: none;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition: background 0.2s, transform 0.2s;
+    }
+    .btn-primary:hover { background: #ff1a32; transform: translateY(-2px); }
+    .btn-ghost {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.15em;
+      font-size: 0.9rem;
+      padding: 1rem 2.5rem;
+      border: 1px solid var(--border);
+      color: var(--gold);
+      text-decoration: none;
+      clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .btn-ghost:hover { border-color: var(--gold); transform: translateY(-2px); }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      opacity: 0;
+      animation: fade-up 1s 1.5s forwards;
+    }
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--gold), transparent);
+      animation: scroll-pulse 2s ease-in-out infinite;
+    }
+    @keyframes scroll-pulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.1); }
+    }
+    .scroll-text {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.65rem;
+      letter-spacing: 0.3em;
+      color: var(--dim);
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── SECTION COMMON ─── */
+    section { padding: 8rem 6vw; }
+    .section-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.75rem;
+      letter-spacing: 0.45em;
+      color: var(--red);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      max-width: 80px;
+      height: 1px;
+      background: var(--red);
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2.5rem, 5vw, 5.5rem);
+      line-height: 0.95;
+      margin-bottom: 3rem;
+    }
+
+    /* ─── DIVIDER ─── */
+    .divider {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+      margin: 0;
+    }
+
+    /* ─── TOP 5 ANIME ─── */
+    #top5 { background: var(--off-black); }
+
+    .anime-grid {
+      display: grid;
+      gap: 0;
+    }
+
+    .anime-card {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      align-items: start;
+      gap: 0 2.5rem;
+      padding: 3rem 0;
+      border-bottom: 1px solid rgba(245,197,24,0.08);
+      position: relative;
+      transition: background 0.3s;
+    }
+    .anime-card:first-child { border-top: 1px solid rgba(245,197,24,0.08); }
+    .anime-card::before {
+      content: '';
+      position: absolute;
+      left: -6vw; right: -6vw; top: 0; bottom: 0;
+      background: rgba(232,0,26,0.03);
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+    }
+    .anime-card:hover::before { opacity: 1; }
+
+    .anime-rank {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 5rem;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1px var(--gold-dim);
+      transition: color 0.3s, -webkit-text-stroke 0.3s;
+    }
+    .anime-card:hover .anime-rank {
+      color: var(--gold);
+      -webkit-text-stroke: 1px var(--gold);
+    }
+
+    .anime-info { padding-top: 0.4rem; }
+    .anime-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(2rem, 4vw, 3.5rem);
+      line-height: 1;
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+    .anime-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 0.85rem;
+      color: var(--dim);
+      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+    }
+    .anime-desc {
+      font-size: 1rem;
+      color: rgba(242,237,232,0.7);
+      max-width: 620px;
+      line-height: 1.75;
+      margin-bottom: 1.2rem;
+    }
+    .anime-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .tag {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      padding: 0.25rem 0.8rem;
+      border: 1px solid rgba(245,197,24,0.25);
+      color: var(--gold);
+    }
+
+    .anime-meta {
+      text-align: right;
+      padding-top: 0.4rem;
+      flex-shrink: 0;
+    }
+    .anime-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1rem;
+      letter-spacing: 0.2em;
+      color: var(--dim);
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+    .anime-studio {
+      font-size: 0.8rem;
+      color: rgba(138,128,117,0.6);
+      font-style: italic;
+    }
+    .anime-quote {
+      font-style: italic;
+      font-size: 0.95rem;
+      color: var(--red);
+      margin-top: 1rem;
+      border-left: 2px solid var(--red);
+      padding-left: 1rem;
+      max-width: 550px;
+    }
+
+    /* ─── MOTIVATION SECTION ─── */
+    #motivation { position: relative; overflow: hidden; }
+
+    .motivation-bg-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(8rem, 20vw, 22rem);
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(232,0,26,0.06);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: 0.05em;
+    }
+
+    .motivation-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem;
+      align-items: start;
+      position: relative;
+      z-index: 2;
+    }
+
+    .motivation-left {}
+    .motivation-quote-large {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(1.5rem, 3vw, 2.5rem);
+      font-weight: 300;
+      line-height: 1.5;
+      margin-bottom: 2rem;
+      color: var(--white);
+    }
+    .motivation-quote-large em { color: var(--gold); font-style: normal; }
+
+    .motivation-body {
+      font-size: 1.1rem;
+      line-height: 1.85;
+      color: rgba(242,237,232,0.75);
+      margin-bottom: 1.5rem;
+    }
+
+    .motivation-right {}
+
+    .reason-card {
+      padding: 2rem;
+      border: 1px solid var(--border);
+      margin-bottom: 1.5rem;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s;
+    }
+    .reason-card:hover { border-color: rgba(245,197,24,0.4); }
+    .reason-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--red);
+    }
+    .reason-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.3em;
+      color: var(--red);
+      margin-bottom: 0.5rem;
+    }
+    .reason-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+    .reason-body {
+      font-size: 0.95rem;
+      color: rgba(242,237,232,0.65);
+      line-height: 1.7;
+    }
+
+    /* ─── COMMUNITY VOICES ─── */
+    #voices { background: var(--off-black); }
+
+    .voices-intro {
+      max-width: 640px;
+      font-size: 1.15rem;
+      color: rgba(242,237,232,0.7);
+      margin-bottom: 4rem;
+    }
+
+    .quotes-mosaic {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .voice-card {
+      padding: 2rem;
+      background: var(--panel);
+      border-top: 2px solid var(--red);
+      position: relative;
+    }
+    .voice-card.gold-top { border-top-color: var(--gold); }
+    .voice-card.featured {
+      grid-column: span 2;
+      background: linear-gradient(135deg, rgba(232,0,26,0.06) 0%, var(--panel) 60%);
+    }
+    .voice-quote {
+      font-style: italic;
+      font-size: 1.05rem;
+      line-height: 1.75;
+      margin-bottom: 1.5rem;
+      color: rgba(242,237,232,0.85);
+    }
+    .voice-author {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      color: var(--dim);
+    }
+    .voice-author span { color: var(--gold); }
+    .quote-mark {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 4rem;
+      line-height: 1;
+      color: var(--red);
+      opacity: 0.3;
+      position: absolute;
+      top: 1rem;
+      right: 1.5rem;
+    }
+    .voice-card.gold-top .quote-mark { color: var(--gold); }
+
+    /* ─── JAPANESE CULTURE ─── */
+    #culture { position: relative; }
+
+    .culture-intro {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 5rem;
+      margin-bottom: 6rem;
+      align-items: start;
+    }
+
+    .culture-text {}
+    .culture-body {
+      font-size: 1.1rem;
+      line-height: 1.85;
+      color: rgba(242,237,232,0.75);
+      margin-bottom: 1.5rem;
+    }
+
+    .culture-visual {
+      position: relative;
+    }
+    .culture-kanji-block {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+    .kanji-row {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(3rem, 6vw, 7rem);
+      font-weight: 900;
+      line-height: 1;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(245,197,24,0.4);
+      transition: color 0.3s, -webkit-text-stroke 0.3s;
+    }
+    .kanji-row:hover {
+      color: rgba(245,197,24,0.6);
+      -webkit-text-stroke: 1px var(--gold);
+    }
+    .kanji-meaning {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      color: var(--dim);
+      text-align: right;
+    }
+
+    /* Timeline */
+    .timeline { position: relative; }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0; bottom: 0;
+      width: 1px;
+      background: linear-gradient(to bottom, var(--red), rgba(232,0,26,0.1));
+    }
+
+    .timeline-item {
+      padding-left: 3rem;
+      padding-bottom: 3.5rem;
+      position: relative;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -4px;
+      top: 8px;
+      width: 9px; height: 9px;
+      background: var(--red);
+      border-radius: 50%;
+    }
+    .timeline-item.gold::before { background: var(--gold); }
+
+    .timeline-year {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2.5rem;
+      line-height: 1;
+      color: var(--gold);
+      margin-bottom: 0.4rem;
+    }
+    .timeline-title {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+      color: var(--white);
+    }
+    .timeline-body {
+      font-size: 1rem;
+      color: rgba(242,237,232,0.65);
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    /* ─── CULTURAL PILLARS ─── */
+    #pillars { background: var(--off-black); }
+
+    .pillars-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5px;
+      background: rgba(245,197,24,0.1);
+    }
+    .pillar-card {
+      background: var(--off-black);
+      padding: 3rem 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .pillar-card:hover { background: rgba(232,0,26,0.04); }
+    .pillar-icon {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 3.5rem;
+      margin-bottom: 1rem;
+      display: block;
+      color: var(--gold);
+      opacity: 0.8;
+    }
+    .pillar-name {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.3rem;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.75rem;
+    }
+    .pillar-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 0.85rem;
+      color: var(--dim);
+      margin-bottom: 1rem;
+      letter-spacing: 0.1em;
+    }
+    .pillar-body {
+      font-size: 0.9rem;
+      color: rgba(242,237,232,0.6);
+      line-height: 1.7;
+    }
+
+    /* ─── CLOSING MANIFESTO ─── */
+    #manifesto {
+      text-align: center;
+      padding: 10rem 6vw;
+      position: relative;
+      overflow: hidden;
+    }
+    .manifesto-bg {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 80% 60% at 50% 50%, rgba(232,0,26,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .manifesto-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(3rem, 8vw, 9rem);
+      line-height: 0.92;
+      margin-bottom: 2rem;
+      position: relative;
+      z-index: 2;
+    }
+    .manifesto-title .red { color: var(--red); }
+    .manifesto-body {
+      font-size: 1.3rem;
+      font-style: italic;
+      color: rgba(242,237,232,0.7);
+      max-width: 700px;
+      margin: 0 auto 3rem;
+      line-height: 1.8;
+      position: relative;
+      z-index: 2;
+    }
+    .manifesto-kanji {
+      font-family: 'Noto Serif JP', serif;
+      font-size: clamp(4rem, 12vw, 14rem);
+      font-weight: 900;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(232,0,26,0.2);
+      display: block;
+      position: relative;
+      z-index: 2;
+      animation: manifesto-breathe 4s ease-in-out infinite;
+    }
+    @keyframes manifesto-breathe {
+      0%, 100% { -webkit-text-stroke: 1px rgba(232,0,26,0.2); }
+      50% { -webkit-text-stroke: 1px rgba(232,0,26,0.5); }
+    }
+
+    /* ─── BY THE NUMBERS ─── */
+    #numbers { background: var(--black); }
+
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      margin-bottom: 5rem;
+    }
+
+    .list-block {}
+    .list-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.6rem;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.4rem;
+    }
+    .list-subtitle {
+      font-size: 0.9rem;
+      color: var(--dim);
+      font-style: italic;
+      margin-bottom: 1.8rem;
+    }
+
+    ol.anime-ordered {
+      list-style: none;
+      counter-reset: anime-counter;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ol.anime-ordered li {
+      counter-increment: anime-counter;
+      display: flex;
+      align-items: baseline;
+      gap: 1.2rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(245,197,24,0.07);
+      font-size: 1rem;
+      color: rgba(242,237,232,0.8);
+      transition: color 0.2s, padding-left 0.2s;
+    }
+    ol.anime-ordered li:hover { color: var(--white); padding-left: 6px; }
+    ol.anime-ordered li::before {
+      content: counter(anime-counter, decimal-leading-zero);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.4rem;
+      color: var(--red);
+      min-width: 2rem;
+      line-height: 1;
+    }
+    ol.anime-ordered li span.li-title { font-weight: 600; color: var(--white); }
+    ol.anime-ordered li span.li-note {
+      font-size: 0.85rem;
+      color: var(--dim);
+      font-style: italic;
+      margin-left: 0.5rem;
+    }
+
+    ul.anime-unordered {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ul.anime-unordered li {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(245,197,24,0.07);
+      font-size: 1rem;
+      color: rgba(242,237,232,0.8);
+      transition: color 0.2s, padding-left 0.2s;
+    }
+    ul.anime-unordered li:hover { color: var(--white); padding-left: 6px; }
+    ul.anime-unordered li::before {
+      content: '▸';
+      color: var(--gold);
+      font-size: 0.85rem;
+      margin-top: 0.2rem;
+      flex-shrink: 0;
+    }
+    ul.anime-unordered li span.li-title { font-weight: 600; color: var(--white); display: block; }
+    ul.anime-unordered li span.li-note {
+      font-size: 0.88rem;
+      color: var(--dim);
+      font-style: italic;
+    }
+
+    /* Tableau */
+    .tableau-wrap {
+      position: relative;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .tableau-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--panel);
+      border-bottom: 1px solid var(--border);
+    }
+    .tableau-label-title {
+      font-family: 'Bebas Neue', sans-serif;
+      letter-spacing: 0.15em;
+      font-size: 0.85rem;
+      color: var(--gold);
+    }
+    .tableau-label-sub {
+      font-size: 0.8rem;
+      color: var(--dim);
+      font-style: italic;
+    }
+    .tableau-frame {
+      width: 100%;
+      height: 620px;
+      border: none;
+      display: block;
+      background: #1a1a1a;
+    }
+
+    /* ─── STAMP ─── */
+    .kj-stamp {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 200;
+      width: 90px;
+      height: 90px;
+      pointer-events: none;
+      animation: stamp-spin 20s linear infinite;
+    }
+    @keyframes stamp-spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      padding: 3rem 6vw;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 1.2rem;
+      letter-spacing: 0.2em;
+      color: var(--gold);
+    }
+    .footer-logo span { color: var(--red); }
+    .footer-note {
+      font-size: 0.85rem;
+      color: var(--dim);
+      font-style: italic;
+    }
+    .footer-jp {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 1.2rem;
+      color: rgba(138,128,117,0.4);
+    }
+
+    /* ─── REVEAL ANIMATIONS ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.9s cubic-bezier(.23,1,.32,1), transform 0.9s cubic-bezier(.23,1,.32,1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-50px);
+      transition: opacity 0.9s cubic-bezier(.23,1,.32,1), transform 0.9s cubic-bezier(.23,1,.32,1);
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(50px);
+      transition: opacity 0.9s cubic-bezier(.23,1,.32,1), transform 0.9s cubic-bezier(.23,1,.32,1);
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      nav { padding: 1.2rem 1.5rem; }
+      .nav-links { display: none; }
+      section { padding: 5rem 5vw; }
+      .anime-card { grid-template-columns: 60px 1fr; }
+      .anime-meta { display: none; }
+      .motivation-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .quotes-mosaic { grid-template-columns: 1fr; }
+      .voice-card.featured { grid-column: span 1; }
+      .culture-intro { grid-template-columns: 1fr; gap: 3rem; }
+      .pillars-grid { grid-template-columns: repeat(2, 1fr); }
+      footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+
+    @media (max-width: 600px) {
+      .hero-title { font-size: clamp(3rem, 14vw, 6rem); }
+      .pillars-grid { grid-template-columns: 1fr; }
+      .hero-cta { flex-direction: column; }
+    }
+
+    /* ─── SITE-WIDE NAV ─── */
+    .site-nav {
+      position: fixed; top: 0; left: 0; width: 100%; z-index: 9999;
+      background: #002E5D;
+      height: 42px;
+      display: flex; align-items: center;
+      box-shadow: 0 2px 14px rgba(0,0,0,0.8);
+      font-family: 'Courier New', monospace;
+    }
+    .site-nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; padding: 0 22px;
+    }
+    .site-nav-brand {
+      color: #FFD700; font-weight: bold; font-size: 15px;
+      letter-spacing: 1px; text-decoration: none;
+    }
+    .site-nav-brand:hover { color: #fff; }
+    .site-nav-links { display: flex; gap: 4px; }
+    .site-nav-links a {
+      color: #cce0ff; text-decoration: none; font-size: 13px;
+      padding: 5px 13px; border-radius: 4px;
+      transition: background 0.2s, color 0.2s;
+    }
+    .site-nav-links a:hover { background: rgba(255,255,255,0.14); color: #FFD700; }
+    .site-nav-links a.nav-active { background: rgba(255,215,0,0.18); color: #FFD700; font-weight: bold; }
+  </style>
+</head>
+<body style="padding-top: 42px;">
+
+  <!-- SITE NAV -->
+  <nav class="site-nav">
+    <div class="site-nav-inner">
+      <a class="site-nav-brand" href="index.html">KJ Perry</a>
+      <div class="site-nav-links">
+        <a href="index.html">📄 Resume</a>
+        <a href="anime.html" class="nav-active">🎌 Anime</a>
+        <a href="mario-hippo-runner.html">🏀 BYU Game</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- CURSOR -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">BUSHIDO<span>●</span>ANIME</div>
+    <ul class="nav-links">
+      <li><a href="#top5">Top 5</a></li>
+      <li><a href="#motivation">Motivation</a></li>
+      <li><a href="#voices">Stories</a></li>
+      <li><a href="#culture">Origins</a></li>
+      <li><a href="#pillars">Culture</a></li>
+      <li><a href="#numbers">Data</a></li>
+    </ul>
+  </nav>
+
+  <!-- KJ STAMP -->
+  <svg class="kj-stamp" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-label="By KJ Perry">
+    <defs>
+      <path id="circle-path" d="M 50,50 m -32,0 a 32,32 0 1,1 64,0 a 32,32 0 1,1 -64,0"/>
+    </defs>
+    <circle cx="50" cy="50" r="44" fill="none" stroke="#e8001a" stroke-width="2"/>
+    <circle cx="50" cy="50" r="38" fill="rgba(7,7,7,0.85)" stroke="#f5c518" stroke-width="1" stroke-dasharray="3 4"/>
+    <text font-family="'Bebas Neue', sans-serif" font-size="10.5" fill="#f5c518" letter-spacing="3">
+      <textPath href="#circle-path" startOffset="0%">BY KJ PERRY · ANIME · BY KJ PERRY · ANIME ·</textPath>
+    </text>
+    <text x="50" y="46" text-anchor="middle" font-family="'Noto Serif JP', serif" font-size="16" font-weight="900" fill="#e8001a">KJ</text>
+    <text x="50" y="60" text-anchor="middle" font-family="'Bebas Neue', sans-serif" font-size="8" fill="#f5c518" letter-spacing="2">PERRY</text>
+  </svg>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="speed-lines"></div>
+    <div class="hero-kanji">不屈の魂</div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">アニメ — The Spirit That Never Breaks</p>
+      <h1 class="hero-title">
+        <span class="line-red">PUSH</span><br/>
+        <span>THROUGH</span><br/>
+        <span class="line-gold">ANY</span><br/>
+        <span>ADVERSITY</span>
+      </h1>
+      <p class="hero-sub">From Naruto's relentless will to Luffy's unbreakable spirit — anime is not just entertainment. It is a way of life.</p>
+      <div class="hero-cta">
+        <a href="#top5" class="btn-primary">Explore Top 5</a>
+        <a href="#motivation" class="btn-ghost">Why It Matters</a>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span class="scroll-text">Scroll</span>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TOP 5 ANIME -->
+  <section id="top5">
+    <div class="section-label reveal">My Top 5 Anime</div>
+    <h2 class="section-title reveal">THE FIVE<br/><span style="color:var(--red)">LEGENDS</span></h2>
+
+    <div class="anime-grid">
+
+      <!-- 1. NARUTO -->
+      <div class="anime-card reveal">
+        <div class="anime-rank">1</div>
+        <div class="anime-info">
+          <h3 class="anime-name">NARUTO</h3>
+          <p class="anime-jp">ナルト</p>
+          <p class="anime-desc">
+            The story of Naruto Uzumaki — a boy born into rejection, shunned by his entire village, who refused to let the world define him. Every arc is a lesson in perseverance, loyalty, and the power of never giving up on your nindo — your ninja way. Naruto didn't just want to be acknowledged; he wanted to protect every single person who ever doubted him. That's not strength. That's greatness.
+          </p>
+          <p class="anime-quote">"I'm not gonna run away, I never go back on my word! That's my nindo: my ninja way!" — Naruto Uzumaki</p>
+          <div class="anime-tags">
+            <span class="tag">Perseverance</span>
+            <span class="tag">Friendship</span>
+            <span class="tag">Self-Belief</span>
+            <span class="tag">Legacy</span>
+          </div>
+        </div>
+        <div class="anime-meta">
+          <span class="anime-year">1999 – 2017</span>
+          <span class="anime-studio">Studio Pierrot</span>
+        </div>
+      </div>
+
+      <!-- 2. ONE PIECE -->
+      <div class="anime-card reveal">
+        <div class="anime-rank">2</div>
+        <div class="anime-info">
+          <h3 class="anime-name">ONE PIECE</h3>
+          <p class="anime-jp">ワンピース</p>
+          <p class="anime-desc">
+            Monkey D. Luffy doesn't have a grand strategy, a flawless plan, or overwhelming intelligence. What he has is a dream so big it defies the entire world — and a crew willing to sail straight into hell for each other. One Piece is the greatest story ever told about the audacity of chasing a dream that everyone else calls impossible. It has been running for over 25 years and has never once wavered in its message: freedom is worth everything.
+          </p>
+          <p class="anime-quote">"If you don't take risks, you can't create a future!" — Monkey D. Luffy</p>
+          <div class="anime-tags">
+            <span class="tag">Freedom</span>
+            <span class="tag">Loyalty</span>
+            <span class="tag">Adventure</span>
+            <span class="tag">Dreams</span>
+          </div>
+        </div>
+        <div class="anime-meta">
+          <span class="anime-year">1999 – Present</span>
+          <span class="anime-studio">Toei Animation</span>
+        </div>
+      </div>
+
+      <!-- 3. ATTACK ON TITAN -->
+      <div class="anime-card reveal">
+        <div class="anime-rank">3</div>
+        <div class="anime-info">
+          <h3 class="anime-name">ATTACK ON TITAN</h3>
+          <p class="anime-jp">進撃の巨人</p>
+          <p class="anime-desc">
+            Nothing in anime has ever hit harder. Attack on Titan forces you to confront humanity's darkest impulses — war, oppression, genocide — and wraps it all in one of the most gripping narratives in storytelling history. Eren Yeager's journey from a boy screaming at walls to a man who becomes the very monster he swore to destroy is a masterclass in moral complexity. It doesn't give you easy answers. It makes you sit with the weight of consequence.
+          </p>
+          <p class="anime-quote">"The world is cruel, but also very beautiful." — Mikasa Ackerman</p>
+          <div class="anime-tags">
+            <span class="tag">Freedom</span>
+            <span class="tag">Sacrifice</span>
+            <span class="tag">Moral Complexity</span>
+            <span class="tag">War</span>
+          </div>
+        </div>
+        <div class="anime-meta">
+          <span class="anime-year">2013 – 2023</span>
+          <span class="anime-studio">MAPPA / WIT</span>
+        </div>
+      </div>
+
+      <!-- 4. DRAGON BALL Z -->
+      <div class="anime-card reveal">
+        <div class="anime-rank">4</div>
+        <div class="anime-info">
+          <h3 class="anime-name">DRAGON BALL Z</h3>
+          <p class="anime-jp">ドラゴンボールZ</p>
+          <p class="anime-desc">
+            Dragon Ball Z didn't just define a generation — it created the template for what a hero looks like. Goku is the eternal optimist, the fighter who trains not out of hatred but out of pure love for the art of pushing past limits. Every transformation — every Super Saiyan breakthrough — is a physical manifestation of refusing to accept that this is as far as you go. DBZ taught millions of kids that no matter how outmatched you are, you keep training. You keep fighting. You break your limits.
+          </p>
+          <p class="anime-quote">"Power comes in response to a need, not a desire. You have to create that need." — Goku</p>
+          <div class="anime-tags">
+            <span class="tag">Strength</span>
+            <span class="tag">Growth</span>
+            <span class="tag">Exceeding Limits</span>
+            <span class="tag">Discipline</span>
+          </div>
+        </div>
+        <div class="anime-meta">
+          <span class="anime-year">1989 – 1996</span>
+          <span class="anime-studio">Toei Animation</span>
+        </div>
+      </div>
+
+      <!-- 5. JUJUTSU KAISEN -->
+      <div class="anime-card reveal">
+        <div class="anime-rank">5</div>
+        <div class="anime-info">
+          <h3 class="anime-name">JUJUTSU KAISEN</h3>
+          <p class="anime-jp">呪術廻戦</p>
+          <p class="anime-desc">
+            Jujutsu Kaisen arrived like a thunderstrike — visceral, brutal, breathtaking. Yuji Itadori chose to carry the greatest curse in existence so that others wouldn't have to, asking only for one thing: to die surrounded by people, having lived a good life. It's a story about the value of a single human life in a world that treats them as expendable. Gojo Satoru redefined what a mentor looks like. The animation is unmatched. The stakes are real. People you love actually die.
+          </p>
+          <p class="anime-quote">"I don't know how I'll feel when I'm dead, but I don't want to regret the way I lived." — Yuji Itadori</p>
+          <div class="anime-tags">
+            <span class="tag">Sacrifice</span>
+            <span class="tag">Purpose</span>
+            <span class="tag">Cursed Energy</span>
+            <span class="tag">Brotherhood</span>
+          </div>
+        </div>
+        <div class="anime-meta">
+          <span class="anime-year">2020 – Present</span>
+          <span class="anime-studio">MAPPA</span>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MOTIVATION -->
+  <section id="motivation">
+    <div class="motivation-bg-text">NEVER GIVE UP</div>
+    <div class="motivation-grid">
+      <div class="motivation-left">
+        <div class="section-label reveal-left">Why It Moves Us</div>
+        <h2 class="section-title reveal-left">ANIME<br/>DOESN'T LET<br/><span style="color:var(--red)">YOU QUIT</span></h2>
+        <p class="motivation-quote-large reveal-left">
+          It's more than a show.<br/>It's a <em>mirror</em> — showing you<br/>what you're capable of.
+        </p>
+        <p class="motivation-body reveal-left">
+          Anime has a unique power that few storytelling mediums can match: it takes impossible circumstances and makes them feel personal. When Naruto trains alone in the forest at midnight, you feel it. When Rock Lee tears off his weights and moves so fast nobody can follow — you believe. Not because it's realistic. But because the emotion behind it is absolutely, devastatingly real.
+        </p>
+        <p class="motivation-body reveal-left">
+          Researchers and fans alike have documented how anime's combination of expressive animation, sweeping musical scores, and deeply human character arcs creates an emotional resonance that lingers long after the episode ends. These stories don't just entertain — they recalibrate how you see your own struggles.
+        </p>
+        <p class="motivation-body reveal-left">
+          For many people — including me — anime has been the thing that pushed through when everything else said stop. When life felt like an unwinnable fight, a character who had nothing and became everything reminded me: adversity is not the end of the story. It's the beginning of the arc.
+        </p>
+      </div>
+
+      <div class="motivation-right">
+        <div class="reason-card reveal-right" style="transition-delay:0.1s">
+          <p class="reason-num">REASON 01</p>
+          <h4 class="reason-title">Characters Earn Their Power</h4>
+          <p class="reason-body">Unlike many Western stories where heroes are born gifted, anime characters bleed for every inch of progress. Watching someone train relentlessly, fail spectacularly, and rise again speaks directly to anyone grinding through real life.</p>
+        </div>
+        <div class="reason-card reveal-right" style="transition-delay:0.2s">
+          <p class="reason-num">REASON 02</p>
+          <h4 class="reason-title">Failure is Honored, Not Hidden</h4>
+          <p class="reason-body">Anime doesn't skip the suffering. It lingers on the defeat so that the comeback hits harder. This models something important: failure is not shameful. It is necessary. Rock Lee. Hinata. Zoro. All of them lost spectacularly before becoming legends.</p>
+        </div>
+        <div class="reason-card reveal-right" style="transition-delay:0.3s">
+          <p class="reason-num">REASON 03</p>
+          <h4 class="reason-title">Friendship as True Strength</h4>
+          <p class="reason-body">Again and again, anime shows that the strongest power is the bond between people. Not raw power — connection. This message has deep roots in Japanese philosophy, and it resonates globally because human beings are wired for it.</p>
+        </div>
+        <div class="reason-card reveal-right" style="transition-delay:0.4s">
+          <p class="reason-num">REASON 04</p>
+          <h4 class="reason-title">Emotional Depth Without Apology</h4>
+          <p class="reason-body">Anime lets male characters cry, scream, break down, and rebuild without stripping their dignity. This emotional permission has quietly helped millions of young men process feelings they were never taught to express. It's radical and healing.</p>
+        </div>
+        <div class="reason-card reveal-right" style="transition-delay:0.5s">
+          <p class="reason-num">REASON 05</p>
+          <h4 class="reason-title">The Music Unlocks Something</h4>
+          <p class="reason-body">From the Naruto OST to Jujutsu Kaisen's battle themes — anime soundtracks are architecturally designed to elevate. The combination of visual storytelling and music creates peak emotional states that genuinely activate motivation centers in the brain.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COMMUNITY VOICES -->
+  <section id="voices">
+    <div class="section-label reveal">Real Stories, Real Impact</div>
+    <h2 class="section-title reveal">THEY FELT IT<br/><span style="color:var(--gold)">TOO</span></h2>
+    <p class="voices-intro reveal">
+      Across the world, people have shared how anime changed the course of their lives. These are their voices — the athletes, the students, the dreamers who found their fire in a cartoon.
+    </p>
+
+    <div class="quotes-mosaic">
+      <div class="voice-card featured reveal">
+        <div class="quote-mark">"</div>
+        <p class="voice-quote">
+          "Naruto taught me that your past does not define you. I grew up without a father, feeling like an outsider everywhere I went. Watching Naruto refuse to let that stop him — refuse to hate the people who hated him — changed how I saw my own story. I stopped waiting to be accepted and started building who I wanted to be."
+        </p>
+        <p class="voice-author"><span>Marcus T.</span> — Atlanta, GA · Naruto Fan Since 2007</p>
+      </div>
+      <div class="voice-card reveal">
+        <div class="quote-mark">"</div>
+        <p class="voice-quote">
+          "I was ready to drop out of school. Then I watched Rock Lee's fight with Gaara. A kid with zero natural talent who trained so hard his bones broke — and still refused to give up. I went back to class the next morning."
+        </p>
+        <p class="voice-author"><span>Keisha M.</span> — Chicago, IL</p>
+      </div>
+
+      <div class="voice-card gold-top reveal">
+        <div class="quote-mark">"</div>
+        <p class="voice-quote">
+          "One Piece showed me that a crew — real people who believe in you — is more important than any ability. It made me invest in my friendships differently."
+        </p>
+        <p class="voice-author"><span>Daniel R.</span> — Miami, FL</p>
+      </div>
+      <div class="voice-card gold-top reveal">
+        <div class="quote-mark">"</div>
+        <p class="voice-quote">
+          "Dragon Ball Z was my first experience of someone pushing past every limit imaginable. As an athlete, that imagery — that transformation — never left my body. I replay it before every competition."
+        </p>
+        <p class="voice-author"><span>Jaylen W.</span> — Houston, TX · Track Athlete</p>
+      </div>
+      <div class="voice-card reveal">
+        <div class="quote-mark">"</div>
+        <p class="voice-quote">
+          "Attack on Titan taught me that hard choices don't always have clean answers. That helped me more in leadership than any business book I've ever read."
+        </p>
+        <p class="voice-author"><span>Priya S.</span> — New York, NY · Entrepreneur</p>
+      </div>
+      <div class="voice-card featured gold-top reveal">
+        <div class="quote-mark">"</div>
+        <p class="voice-quote">
+          "Anime broke me open in the best way. I was raised to believe that showing emotion was weakness. Then I watched Itachi tell Sasuke everything. I watched Might Guy open the Eighth Gate for Rock Lee. I watched Goku scream to protect his son. These weren't weak men. They were the strongest in the world — and they felt everything. That rewired something in me."
+        </p>
+        <p class="voice-author"><span>Terrell H.</span> — Los Angeles, CA · Mental Health Advocate</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- JAPANESE CULTURE & HISTORY -->
+  <section id="culture">
+    <div class="section-label reveal">Origins</div>
+    <h2 class="section-title reveal">BORN FROM<br/><span style="color:var(--red)">JAPAN'S</span><br/>SOUL</h2>
+
+    <div class="culture-intro">
+      <div class="culture-text">
+        <p class="culture-body reveal-left">
+          To understand anime, you must understand Japan. The island nation forged a culture of extraordinary paradox — ruthless discipline alongside profound beauty, rigid structure alongside wildly expressive art, ancient tradition alongside relentless innovation. Anime is not an accident. It is the inevitable output of a society that has refined the art of storytelling across thousands of years.
+        </p>
+        <p class="culture-body reveal-left">
+          Japan's earliest animated films appeared in 1917, barely a decade after Western animation began. But anime's true roots stretch back centuries — to the ukiyo-e woodblock prints of the Edo period, the expressive puppet theater of Bunraku, and the epic scroll paintings that told stories across silk. Japanese artists have always understood that images in sequence tell stories that words alone cannot.
+        </p>
+        <p class="culture-body reveal-left">
+          The culture of <em>ganbaru</em> — to persist, to give everything, to never quit — is encoded in Japanese daily life. It shows up in how students study, how salarymen work, how athletes train. It is no coincidence that the most motivational stories in anime reflect this exact value back to the world. Ganbaru is in Naruto's shadow clones at midnight. It's in Goku breaking his own body to reach the next level. It's in Itadori choosing to carry a curse so others won't have to.
+        </p>
+        <p class="culture-body reveal-left">
+          Post-World War II Japan was a nation that needed to rebuild not just its cities but its soul. Manga and anime emerged as a way to dream again — to imagine heroes who could overcome impossible odds. Osamu Tezuka, deeply influenced by Disney but determined to create something distinctly Japanese, gave birth to modern manga. Everything since has been built on his foundation.
+        </p>
+      </div>
+
+      <div class="culture-visual reveal-right">
+        <div class="culture-kanji-block">
+          <div>
+            <p class="kanji-row">頑張る</p>
+            <p class="kanji-meaning">GANBARU — To persist through anything</p>
+          </div>
+          <div>
+            <p class="kanji-row">不屈</p>
+            <p class="kanji-meaning">FUKUTSU — Indomitable spirit</p>
+          </div>
+          <div>
+            <p class="kanji-row">仲間</p>
+            <p class="kanji-meaning">NAKAMA — True bonds of friendship</p>
+          </div>
+          <div>
+            <p class="kanji-row">夢</p>
+            <p class="kanji-meaning">YUME — Dream</p>
+          </div>
+          <div>
+            <p class="kanji-row">道</p>
+            <p class="kanji-meaning">MICHI — The path / the way</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TIMELINE -->
+    <div class="section-label reveal">A Timeline of Anime History</div>
+    <div class="timeline">
+      <div class="timeline-item reveal">
+        <div class="timeline-year">1917</div>
+        <div class="timeline-title">The First Japanese Animated Films</div>
+        <p class="timeline-body">Three short animated films are produced in Japan — by Seitaro Kitayama, Junichi Kouchi, and Seitaro Kitayama — marking the official beginning of Japanese animation. The art form borrowed from Western techniques but immediately began developing its own visual language rooted in Japanese woodblock prints and theater traditions.</p>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-year">1940s</div>
+        <div class="timeline-title">Wartime Animation & Cultural Identity</div>
+        <p class="timeline-body">During WWII, the Japanese government used animation for propaganda purposes. But simultaneously, animators were pushing the craft forward technically. In the aftermath of the war, Japanese artists turned animation toward something more human — a way to process trauma and imagine better futures.</p>
+      </div>
+      <div class="timeline-item gold reveal">
+        <div class="timeline-year">1963</div>
+        <div class="timeline-title">Osamu Tezuka Launches Astro Boy — Anime Is Born</div>
+        <p class="timeline-body">The "God of Manga," Osamu Tezuka, adapts his own manga into the first major anime TV series, Astro Boy (Tetsuwan Atom). His studio, Mushi Production, set the visual and narrative conventions that would define anime for decades: large expressive eyes, speed lines, emotional close-ups, and serialized storytelling. He is the father of modern anime.</p>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-year">1970s</div>
+        <div class="timeline-title">Mecha, Science Fiction & The Space Age</div>
+        <p class="timeline-body">Mobile Suit Gundam and other mecha anime reflect Japan's rapid industrialization and the cultural anxiety of a nation transforming at breakneck speed. These stories ask serious questions about war, identity, and what it means to be human — wrapped in spectacular robot battles.</p>
+      </div>
+      <div class="timeline-item gold reveal">
+        <div class="timeline-year">1988–1989</div>
+        <div class="timeline-title">Akira & Dragon Ball Z — Global Explosion</div>
+        <p class="timeline-body">Akira, the cyberpunk masterpiece, shocks Western audiences with its cinematic sophistication and brutal honesty. That same year, Dragon Ball Z begins, introducing tens of millions of children worldwide to the concept of pushing past every limit. These two works permanently altered how the world perceived animation.</p>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-year">1995–2000</div>
+        <div class="timeline-title">The Golden Age — Evangelion, Sailor Moon, Cowboy Bebop</div>
+        <p class="timeline-body">Neon Genesis Evangelion deconstructs the hero myth and explores depression and trauma with unflinching honesty. Cowboy Bebop bridges anime and jazz, film noir and space opera. Sailor Moon empowers girls globally. This era proves anime can tackle any theme with any audience.</p>
+      </div>
+      <div class="timeline-item gold reveal">
+        <div class="timeline-year">1999–2002</div>
+        <div class="timeline-title">Naruto & One Piece Begin</div>
+        <p class="timeline-body">The two titans launch within the same year. Naruto and One Piece will go on to become two of the three best-selling manga series in history, together with Dragon Ball. They define the Shonen golden age and inspire hundreds of millions of fans worldwide for the next two decades and beyond.</p>
+      </div>
+      <div class="timeline-item reveal">
+        <div class="timeline-year">2013</div>
+        <div class="timeline-title">Attack on Titan Redefines What Anime Can Be</div>
+        <p class="timeline-body">Hajime Isayama's dark epic hits the world like a freight train. It breaks viewership records, wins international awards, and sparks global debate about its narrative choices. It proves once again that anime can carry the moral weight of the greatest literature ever written.</p>
+      </div>
+      <div class="timeline-item gold reveal">
+        <div class="timeline-year">2020–Present</div>
+        <div class="timeline-title">Jujutsu Kaisen & The New Generation</div>
+        <p class="timeline-body">MAPPA's Jujutsu Kaisen launches with animation quality that sets a new industry benchmark. Demon Slayer becomes the highest-grossing film ever in Japan. Anime is now the dominant global entertainment category for Gen Z, surpassing Western animation in streaming numbers worldwide. The world belongs to anime.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CULTURAL PILLARS -->
+  <section id="pillars">
+    <div class="section-label reveal">Japanese Cultural Concepts</div>
+    <h2 class="section-title reveal">THE PHILOSOPHY<br/><span style="color:var(--gold)">BEHIND THE ART</span></h2>
+    <p style="max-width:600px; color:rgba(242,237,232,0.65); font-size:1.05rem; margin-bottom:3rem;" class="reveal">
+      Anime doesn't exist in a vacuum. It carries centuries of Japanese cultural wisdom in every frame. These are the concepts that animate the stories — and the viewers who love them.
+    </p>
+
+    <div class="pillars-grid">
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">頑張</span>
+        <h3 class="pillar-name">GANBARU</h3>
+        <p class="pillar-jp">頑張る — To do one's best</p>
+        <p class="pillar-body">Japan's cultural engine. The commitment to give everything — in work, in sport, in art. Not a motivational phrase but a lived ethic. Every anime protagonist embodies it.</p>
+      </div>
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">仲</span>
+        <h3 class="pillar-name">NAKAMA</h3>
+        <p class="pillar-jp">仲間 — Comrades / True bonds</p>
+        <p class="pillar-body">More than friendship. Nakama are the people you would die for — and who would die for you. Luffy's crew. Naruto's team. The bonds that turn individuals into something unbreakable.</p>
+      </div>
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">侘</span>
+        <h3 class="pillar-name">WABI-SABI</h3>
+        <p class="pillar-jp">侘び寂び — Beauty in imperfection</p>
+        <p class="pillar-body">The Japanese embrace of the broken, the imperfect, the fleeting. Attack on Titan's tragedy. The bittersweet endings. The scars that characters carry. Imperfection is where beauty lives.</p>
+      </div>
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">道</span>
+        <h3 class="pillar-name">MICHI / DO</h3>
+        <p class="pillar-jp">道 — The Way / The Path</p>
+        <p class="pillar-body">Every anime character has a path. The ninja way. The pirate king's road. The path of the sorcerer. Choosing your path and walking it with integrity — this is the soul of Bushido.</p>
+      </div>
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">義</span>
+        <h3 class="pillar-name">GI</h3>
+        <p class="pillar-jp">義 — Righteousness / Justice</p>
+        <p class="pillar-body">One of the seven virtues of Bushido. The warrior's commitment to do what is right — not what is easy. Characters like Itachi Uchiha sacrificed everything for it.</p>
+      </div>
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">忍</span>
+        <h3 class="pillar-name">NIN</h3>
+        <p class="pillar-jp">忍 — Endurance / Patience</p>
+        <p class="pillar-body">The character that literally means "ninja" — a blade beneath the heart. To endure what would break others. Naruto's entire journey is a love letter to this single concept.</p>
+      </div>
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">礼</span>
+        <h3 class="pillar-name">REI</h3>
+        <p class="pillar-jp">礼 — Respect / Courtesy</p>
+        <p class="pillar-body">Fighters bow to each other before battle. Teachers are revered. Even enemies are acknowledged with dignity. This cultural thread of deep respect weaves through every serious anime.</p>
+      </div>
+      <div class="pillar-card reveal">
+        <span class="pillar-icon">魂</span>
+        <h3 class="pillar-name">TAMASHII</h3>
+        <p class="pillar-jp">魂 — Soul / Spirit</p>
+        <p class="pillar-body">The Japanese concept of the soul as something that animates all living things — and beyond. The idea that spirit can be cultivated, strengthened, and expressed through action. Anime makes this visible.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- BY THE NUMBERS -->
+  <section id="numbers">
+    <div class="section-label reveal">Data &amp; Lists</div>
+    <h2 class="section-title reveal">ANIME BY<br/><span style="color:var(--gold)">THE NUMBERS</span></h2>
+
+    <div class="numbers-grid">
+
+      <!-- ORDERED LIST -->
+      <div class="list-block reveal-left">
+        <h3 class="list-title">Top 10 Most-Watched Anime <span style="color:var(--red)">of All Time</span></h3>
+        <p class="list-subtitle">Ranked by global viewership, cultural footprint &amp; lasting legacy</p>
+        <ol class="anime-ordered">
+          <li><span class="li-title">Dragon Ball Z</span><span class="li-note">— The series that introduced the world to anime</span></li>
+          <li><span class="li-title">Naruto / Naruto Shippuden</span><span class="li-note">— 500+ episodes, 220+ countries</span></li>
+          <li><span class="li-title">One Piece</span><span class="li-note">— Longest-running &amp; best-selling manga ever</span></li>
+          <li><span class="li-title">Pokémon</span><span class="li-note">— Over 1,200 episodes across 25+ years</span></li>
+          <li><span class="li-title">Attack on Titan</span><span class="li-note">— Record-breaking final season viewership</span></li>
+          <li><span class="li-title">Demon Slayer</span><span class="li-note">— Highest-grossing anime film in history</span></li>
+          <li><span class="li-title">Death Note</span><span class="li-note">— The gateway anime for millions worldwide</span></li>
+          <li><span class="li-title">Fullmetal Alchemist: Brotherhood</span><span class="li-note">— Highest-rated anime of all time on MAL</span></li>
+          <li><span class="li-title">Jujutsu Kaisen</span><span class="li-note">— Fastest-growing modern anime globally</span></li>
+          <li><span class="li-title">Bleach</span><span class="li-note">— The "Big Three" era cornerstone</span></li>
+        </ol>
+      </div>
+
+      <!-- UNORDERED LIST -->
+      <div class="list-block reveal-right">
+        <h3 class="list-title">What Every <span style="color:var(--red)">Great Anime</span> Has in Common</h3>
+        <p class="list-subtitle">The DNA behind the stories that change lives</p>
+        <ul class="anime-unordered">
+          <li>
+            <div><span class="li-title">A protagonist who starts from nothing</span><span class="li-note">Zero talent, zero respect, zero hand-outs — only will</span></div>
+          </li>
+          <li>
+            <div><span class="li-title">Earned power, never given</span><span class="li-note">Every breakthrough costs something real — blood, loss, sacrifice</span></div>
+          </li>
+          <li>
+            <div><span class="li-title">A rival who pushes them further</span><span class="li-note">Sasuke. Vegeta. Todoroki. Rivals make legends</span></div>
+          </li>
+          <li>
+            <div><span class="li-title">An unforgettable mentor</span><span class="li-note">Jiraiya. Whitebeard. Erwin. Gojo. Wisdom changes trajectories</span></div>
+          </li>
+          <li>
+            <div><span class="li-title">Music that hits harder than words</span><span class="li-note">The OST carries emotion no dialogue could</span></div>
+          </li>
+          <li>
+            <div><span class="li-title">Real stakes — people you love die</span><span class="li-note">Loss without consequence teaches nothing</span></div>
+          </li>
+          <li>
+            <div><span class="li-title">A theme that transcends the genre</span><span class="li-note">Freedom, identity, justice, what it means to be human</span></div>
+          </li>
+          <li>
+            <div><span class="li-title">Community built around it</span><span class="li-note">Anime doesn't just tell stories — it creates belonging</span></div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- TABLEAU EMBED -->
+    <div class="section-label reveal">Interactive Data Visualization</div>
+    <h3 class="list-title reveal" style="margin-bottom:0.4rem;">MyAnimeList <span style="color:var(--red)">Global Data Dashboard</span></h3>
+    <p class="list-subtitle reveal" style="margin-bottom:1.5rem;">Live data from MyAnimeList — ratings, genres, popularity &amp; trends across thousands of series</p>
+    <div class="tableau-wrap reveal">
+      <div class="tableau-label">
+        <span class="tableau-label-title">MyAnimeList Data Analysis — Tableau Public</span>
+        <span class="tableau-label-sub">Source: public.tableau.com · Ray Li</span>
+      </div>
+      <iframe
+        class="tableau-frame"
+        src="https://public.tableau.com/views/MyAnimeListDataAnalysis/MyAnimeListDashboard?:embed=y&:showVizHome=no&:display_count=y&:toolbar=no"
+        allowfullscreen
+        title="MyAnimeList Data Analysis Dashboard"
+      ></iframe>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- CLOSING MANIFESTO -->
+  <section id="manifesto">
+    <div class="manifesto-bg"></div>
+    <h2 class="manifesto-title reveal">
+      NO MATTER<br/>WHAT HAPPENS,<br/><span class="red">KEEP GOING</span>
+    </h2>
+    <p class="manifesto-body reveal">
+      Every wall you hit, every doubt that creeps in, every moment the world tells you that you're not enough — that is precisely where your arc begins. Anime has shown millions of people what it looks like to push through anyway. Now it's your turn.
+    </p>
+    <span class="manifesto-kanji reveal">不屈</span>
+    <p style="font-family:'Bebas Neue',sans-serif; letter-spacing:0.3em; font-size:0.8rem; color:var(--dim); margin-top:1.5rem;" class="reveal">FUKUTSU — INDOMITABLE</p>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">BUSHIDO<span>●</span>ANIME</div>
+    <p class="footer-note">Built with respect for the art, the culture, and the community that never quits.</p>
+    <div class="footer-jp">アニメ</div>
+  </footer>
+
+  <script>
+    // Cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.transform = `translate(${mx - 6}px, ${my - 6}px)`;
+    });
+
+    function animateRing() {
+      rx += (mx - rx - 18) * 0.12;
+      ry += (my - ry - 18) * 0.12;
+      ring.style.transform = `translate(${rx}px, ${ry}px)`;
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 60);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -60px 0px' });
+
+    reveals.forEach(el => observer.observe(el));
+
+    // Nav active state
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => {
+        if (window.scrollY >= s.offsetTop - 200) current = s.id;
+      });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === `#${current}` ? 'var(--gold)' : '';
+      });
+    });
+
+    // Anime card hover — subtle parallax on rank number
+    document.querySelectorAll('.anime-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+        const rank = card.querySelector('.anime-rank');
+        rank.style.transform = `translateY(${y * -8}px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        const rank = card.querySelector('.anime-rank');
+        rank.style.transform = '';
+      });
+    });
+  </script>
+
+</body>
+</html>
